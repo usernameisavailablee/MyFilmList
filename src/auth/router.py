@@ -5,11 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from . import schemas, service
 from .dependencies import get_current_user
 from .security import create_access_token
+from src.database import get_db
 
 router = APIRouter()
 
 @router.post("/register", response_model=schemas.UserOut, status_code=status.HTTP_201_CREATED)
-async def register(user: schemas.UserCreate, db: AsyncSession = Depends(service.get_db)):
+async def register(user: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
     existing_user = await service.get_user_by_username(db, user.username)
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
@@ -18,7 +19,7 @@ async def register(user: schemas.UserCreate, db: AsyncSession = Depends(service.
 @router.post("/login")
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(service.get_db)
+    db: AsyncSession = Depends(get_db)
 ):
 
     db_user = await service.get_user_by_username(db, form_data.username)
