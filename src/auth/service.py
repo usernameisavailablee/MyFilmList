@@ -3,7 +3,6 @@ from sqlalchemy.future import select
 from . import models, schemas
 import bcrypt
 
-from ..database import AsyncSessionLocal
 
 async def get_user(db: AsyncSession, user_id: int):
     result = await db.execute(select(models.User).where(models.User.id == user_id))
@@ -24,7 +23,4 @@ async def create_user(db: AsyncSession, user: schemas.UserCreate):
 def verify_password(plain_password: str, hashed_password: str):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
-async def get_db() -> AsyncSession:
-    async with AsyncSessionLocal() as session:
-        yield session
 
